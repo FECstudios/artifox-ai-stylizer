@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,6 +10,14 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
+console.log(Deno.env.get('HF_TOKEN'));
+// Helper to fetch image and convert to base64
+async function fetchImageAsBase64(url: string): Promise<string> {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+  return base64;
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -68,20 +75,30 @@ serve(async (req) => {
 
     console.log('Transforming image with prompt:', prompt);
 
-    const replicate = new Replicate({
-      auth: Deno.env.get('REPLICATE_API_TOKEN'),
-    });
+    const imageBase64 = await fetchImageAsBase64(input_image);
 
-    const output = await replicate.run(
-      "black-forest-labs/flux-kontext-pro",
+    const hfToken = Deno.env.get('HF_TOKEN');
+    const hfResponse = await fetch(
+      "https://router.huggingface.co/fal-ai/fal-ai/flux-kontext/dev?_subdomain=queue",
       {
-        input: {
-          prompt,
-          input_image,
-          output_format,
-        }
+        headers: {
+          Authorization: `Bearer ${hfToken}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          inputs: `data:image/png;base64,${imageBase64}`,
+          parameters: { prompt },
+        }),
       }
     );
+
+    if (!hfResponse.ok) {
+      throw new Error(`Hugging Face API error: ${hfResponse.statusText}`);
+    }
+
+    const hfResult = await hfResponse.json();
+    const output = hfResult; // Adjust this if the output format is different
 
     console.log('Transformation completed');
 
