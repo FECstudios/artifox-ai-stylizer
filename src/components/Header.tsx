@@ -1,7 +1,12 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, User, LogIn } from "lucide-react";
+import { Sparkles, User, LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthDialog } from "./AuthDialog";
 
 export const Header = () => {
+  const { user, profile, signOut } = useAuth();
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   return (
     <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-primary/20">
       <div className="container mx-auto px-4">
@@ -31,17 +36,33 @@ export const Header = () => {
 
           {/* Auth buttons */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="hidden sm:flex">
-              <LogIn className="w-4 h-4" />
-              Sign In
-            </Button>
-            <Button variant="hero" size="sm">
-              <User className="w-4 h-4" />
-              Get Started
-            </Button>
+            {user ? (
+              <>
+                <div className="hidden sm:flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Credits:</span>
+                  <span className="font-semibold text-primary">{profile?.credits || 0}</span>
+                </div>
+                <Button variant="ghost" size="sm" onClick={signOut}>
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" className="hidden sm:flex" onClick={() => setAuthDialogOpen(true)}>
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </Button>
+                <Button variant="hero" size="sm" onClick={() => setAuthDialogOpen(true)}>
+                  <User className="w-4 h-4" />
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
 };
