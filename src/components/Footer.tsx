@@ -24,10 +24,8 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground">Product</h3>
             <div className="space-y-2 text-sm">
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Art Styles</a>
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Pricing</a>
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">API</a>
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Roadmap</a>
+              <a href="#styles" className="block text-muted-foreground hover:text-primary transition-colors">Art Styles</a>
+              <a href="#pricing" className="block text-muted-foreground hover:text-primary transition-colors">Pricing</a>
             </div>
           </div>
 
@@ -35,7 +33,6 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground">Support</h3>
             <div className="space-y-2 text-sm">
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Help Center</a>
               <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Contact Us</a>
               <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a>
               <a href="#" className="block text-muted-foreground hover:text-primary transition-colors">Terms of Service</a>

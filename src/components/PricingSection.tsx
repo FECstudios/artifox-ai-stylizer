@@ -18,7 +18,7 @@ export const PricingSection = () => {
 
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Free Plan */}
-          <Card className="bg-gradient-card backdrop-blur-lg border-primary/20 p-8 relative">
+          <Card className="bg-gradient-card backdrop-blur-lg border-primary/20 p-8 relative hover-scale animate-fade-in transition-all duration-300 hover:shadow-glow">
             <div className="space-y-6">
               <div>
                 <h3 className="text-2xl font-bold text-foreground mb-2">Free Plan</h3>
@@ -29,34 +29,34 @@ export const PricingSection = () => {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">5 free AI transformations</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                   <Check className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">All 20+ art styles</span>
+                  <span className="text-foreground">All 24+ art styles</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.3s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">Email delivery</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">Instant download</span>
                 </div>
               </div>
 
-              <Button variant="creative" className="w-full" size="lg">
-                <Zap className="w-5 h-5" />
+              <Button variant="creative" className="w-full group" size="lg">
+                <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Start Free
               </Button>
             </div>
           </Card>
 
           {/* Pro Plan */}
-          <Card className="bg-gradient-primary/10 backdrop-blur-lg border-primary/40 p-8 relative overflow-hidden">
-            <div className="absolute top-4 right-4">
+          <Card className="bg-gradient-primary/10 backdrop-blur-lg border-primary/40 p-8 relative overflow-hidden hover-scale animate-fade-in transition-all duration-300 hover:shadow-glow pulse-glow" style={{ animationDelay: '0.2s' }}>
+            <div className="absolute top-4 right-4 animate-scale-in" style={{ animationDelay: '0.5s' }}>
               <div className="flex items-center gap-1 bg-accent text-accent-foreground text-sm px-3 py-1 rounded-full font-medium">
                 <Star className="w-4 h-4 fill-current" />
                 Popular
@@ -73,30 +73,30 @@ export const PricingSection = () => {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.3s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">100 AI transformations</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">Priority processing</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.5s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">High resolution outputs</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.6s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">Early access to new styles</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: '0.7s' }}>
                   <Check className="w-5 h-5 text-primary" />
                   <span className="text-foreground">Commercial usage rights</span>
                 </div>
               </div>
 
-              <Button variant="hero" className="w-full" size="lg">
-                <Star className="w-5 h-5" />
+              <Button variant="hero" className="w-full group" size="lg">
+                <Star className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Upgrade to Pro
               </Button>
             </div>

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,14 +11,10 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
-console.log(Deno.env.get('HF_TOKEN'));
-// Helper to fetch image and convert to base64
-async function fetchImageAsBase64(url: string): Promise<string> {
-  const response = await fetch(url);
-  const arrayBuffer = await response.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-  return base64;
-}
+
+const replicate = new Replicate({
+  auth: Deno.env.get('REPLICATE_API_TOKEN') ?? '',
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -74,31 +71,38 @@ serve(async (req) => {
     }
 
     console.log('Transforming image with prompt:', prompt);
+    console.log('User status:', profile.user_status);
 
-    const imageBase64 = await fetchImageAsBase64(input_image);
-
-    const hfToken = Deno.env.get('HF_TOKEN');
-    const hfResponse = await fetch(
-      "https://router.huggingface.co/fal-ai/fal-ai/flux-kontext/dev?_subdomain=queue",
-      {
-        headers: {
-          Authorization: `Bearer ${hfToken}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          inputs: `data:image/png;base64,${imageBase64}`,
-          parameters: { prompt },
-        }),
-      }
-    );
-
-    if (!hfResponse.ok) {
-      throw new Error(`Hugging Face API error: ${hfResponse.statusText}`);
+    // Call AI transform based on user status
+    let output;
+    if (profile.user_status === 'free') {
+      // Free users get flux-kontext-dev
+      console.log('Using flux-kontext-dev for free user');
+      output = await replicate.run(
+        "black-forest-labs/flux-kontext-dev",
+        {
+          input: {
+            prompt: prompt,
+            input_image: input_image,
+            output_format: output_format,
+            num_inference_steps: 30
+          }
+        }
+      );
+    } else {
+      // Paid users get flux-kontext-pro
+      console.log('Using flux-kontext-pro for paid user');
+      output = await replicate.run(
+        "black-forest-labs/flux-kontext-pro",
+        {
+          input: {
+            prompt: prompt,
+            input_image: input_image,
+            output_format: output_format
+          }
+        }
+      );
     }
-
-    const hfResult = await hfResponse.json();
-    const output = hfResult; // Adjust this if the output format is different
 
     console.log('Transformation completed');
 
