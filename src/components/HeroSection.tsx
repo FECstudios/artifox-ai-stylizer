@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, Sparkles, Zap } from "lucide-react";
+import { AuthDialog } from "./AuthDialog";
 import heroImage from "@/assets/hero-transform.jpg";
 
 export const HeroSection = () => {
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background gradient */}
@@ -36,13 +39,23 @@ export const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button variant="hero" size="xl" className="group">
+              <Button 
+                variant="hero" 
+                size="xl" 
+                className="group animate-glow-pulse"
+                onClick={() => setAuthDialogOpen(true)}
+              >
                 <Upload className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                Start Creating Art
+                Start Creating with AI
               </Button>
               
-              <Button variant="creative" size="xl">
-                <Zap className="w-5 h-5" />
+              <Button 
+                variant="creative" 
+                size="xl"
+                onClick={() => document.getElementById('styles')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group hover-scale"
+              >
+                <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 See 20+ Styles
               </Button>
             </div>
@@ -78,6 +91,7 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </section>
   );
 };

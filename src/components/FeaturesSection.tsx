@@ -52,10 +52,11 @@ export const FeaturesSection = () => {
           {features.map((feature, index) => (
             <Card 
               key={index}
-              className="group bg-gradient-card backdrop-blur-lg border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-glow hover:scale-105 p-8"
+              className="group bg-gradient-card backdrop-blur-lg border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-glow hover-scale p-8 animate-fade-in"
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
               <div className="space-y-4">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
                 
