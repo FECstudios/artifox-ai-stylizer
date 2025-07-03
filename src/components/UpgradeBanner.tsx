@@ -1,28 +1,39 @@
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Sparkles, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const UpgradeBanner = () => {
   return (
-    <div className="fixed inset-x-0 bottom-4 flex justify-center z-50">
-      <div className="w-full max-w-screen-lg px-0 md:px-4 mx-auto rounded-2xl shadow-2xl bg-white/90 backdrop-blur border border-indigo-200 py-4 md:py-6 flex flex-col md:flex-row items-center gap-4 md:gap-8">
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full p-3 flex items-center justify-center shadow-md">
-            <Sparkles className="w-7 h-7 text-white animate-bounce" />
+    <div className="container mx-auto px-0 md:px-4 max-w-screen-lg py-8 overflow-x-hidden">
+      <div className="w-full max-w-3xl mx-auto rounded-2xl shadow-xl bg-background border border-border py-8 md:py-10 flex flex-col md:flex-row items-center gap-8 md:gap-12 overflow-x-hidden">
+        <div className="flex flex-col items-center md:items-start gap-4 flex-1">
+          <div className="flex items-center gap-4">
+            <div className="bg-primary/90 rounded-full p-4 flex items-center justify-center shadow">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <p className="font-extrabold text-xl md:text-2xl text-primary mb-1">Go Pro: Unlock More AI Art!</p>
+              <p className="text-base text-muted-foreground font-medium">Upgrade for the ultimate creative experience</p>
+            </div>
           </div>
-          <div className="text-center md:text-left">
-            <p className="font-bold text-lg md:text-xl text-indigo-900 mb-1">Go Pro: Unlock Unlimited AI Art!</p>
-            <p className="text-xs md:text-sm text-indigo-700 font-medium">No limits • High-Res • Priority Queue</p>
-          </div>
+          <ul className="mt-4 space-y-2 text-sm md:text-base text-foreground">
+            <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-primary" /> More AI transformations</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-primary" /> High-resolution output</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-primary" /> Priority processing</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-primary" /> Exclusive styles & features</li>
+          </ul>
         </div>
-        <Button
-          asChild
-          variant="default"
-          size="lg"
-          className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 text-base md:text-lg px-6 py-3 shadow-lg"
-        >
-          <Link to="/upgrade-pro">Upgrade Now</Link>
-        </Button>
+        <div className="flex flex-col items-center gap-4 flex-shrink-0 w-full md:w-auto">
+          <Button
+            asChild
+            variant="default"
+            size="xl"
+            className="w-full md:w-auto text-base md:text-lg px-8 py-4 shadow-lg rounded-xl"
+          >
+            <Link to="/upgrade-pro">Upgrade Now</Link>
+          </Button>
+          <span className="text-xs text-muted-foreground mt-2 text-center">Cancel anytime. Instant access after upgrade.</span>
+        </div>
       </div>
     </div>
   );
