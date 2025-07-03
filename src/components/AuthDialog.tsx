@@ -36,7 +36,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/ai-generation`,
           },
         });
         
@@ -77,7 +77,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/ai-generation`,
         },
       });
       

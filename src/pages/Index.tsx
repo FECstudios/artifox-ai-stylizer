@@ -15,11 +15,7 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
-        {user && (
-          <section className="py-20 px-4">
-            <AITransform />
-          </section>
-        )}
+        
         <div id="styles">
           <StylesGallery />
         </div>
