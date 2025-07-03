@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, Sparkles, Download } from "lucide-react";
+import { Upload, Sparkles, Download, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const STYLE_PRESETS = [
   { value: "90s cartoon", label: "90s Cartoon" },
@@ -289,6 +290,32 @@ export const AITransform = () => {
             )}
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+};
+
+export const UpgradeBanner = () => {
+  return (
+    <div className="fixed bottom-0 left-0 right-0 w-full bg-gradient-to-r from-purple-700 to-indigo-800 p-3 md:p-6 text-white shadow-lg z-50 animate-slide-in-up overflow-x-hidden">
+      <div className="w-full md:max-w-7xl md:mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
+        <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+          <Star className="w-7 h-7 md:w-8 md:h-8 text-yellow-300 animate-pulse flex-shrink-0" />
+          <div className="flex-1 text-center md:text-left">
+            <p className="font-bold text-base md:text-xl mb-1">Unlock Pro: Unlimited AI Transformations!</p>
+            <p className="text-xs md:text-base flex items-center justify-center md:justify-start gap-2">
+              <Sparkles className="w-4 h-4" /> High-Res Outputs <span className="mx-1">•</span> Priority Processing
+            </p>
+          </div>
+        </div>
+        <Button
+          asChild
+          variant="secondary"
+          size="lg"
+          className="w-full md:w-auto text-indigo-800 font-semibold hover:bg-indigo-50 text-base md:text-lg py-2 md:py-3 px-4 md:px-6"
+        >
+          <Link to="/upgrade-pro">Upgrade Now</Link>
+        </Button>
       </div>
     </div>
   );

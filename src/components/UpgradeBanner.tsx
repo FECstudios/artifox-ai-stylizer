@@ -1,21 +1,26 @@
 import { Button } from "@/components/ui/button";
-import { Star, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const UpgradeBanner = () => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-purple-700 to-indigo-800 p-4 md:p-6 text-white shadow-lg z-50 animate-slide-in-up">
-      <div className="container mx-auto px-4 flex items-center justify-between flex-col md:flex-row gap-3">
-        <div className="flex items-center gap-4">
-          <Star className="w-8 h-8 text-yellow-300 animate-pulse" />
+    <div className="fixed inset-x-0 bottom-4 flex justify-center z-50">
+      <div className="w-full max-w-screen-lg px-0 md:px-4 mx-auto rounded-2xl shadow-2xl bg-white/90 backdrop-blur border border-indigo-200 py-4 md:py-6 flex flex-col md:flex-row items-center gap-4 md:gap-8">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full p-3 flex items-center justify-center shadow-md">
+            <Sparkles className="w-7 h-7 text-white animate-bounce" />
+          </div>
           <div className="text-center md:text-left">
-            <p className="font-bold text-lg md:text-xl mb-1">Unlock Pro: Unlimited AI Transformations!</p>
-            <p className="text-sm md:text-base flex items-center justify-center md:justify-start gap-2">
-              <Sparkles className="w-4 h-4" /> High-Res Outputs <span className="mx-1">•</span> Priority Processing
-            </p>
+            <p className="font-bold text-lg md:text-xl text-indigo-900 mb-1">Go Pro: Unlock Unlimited AI Art!</p>
+            <p className="text-xs md:text-sm text-indigo-700 font-medium">No limits • High-Res • Priority Queue</p>
           </div>
         </div>
-        <Button asChild variant="secondary" size="lg" className="w-full md:w-auto text-indigo-800 font-semibold hover:bg-indigo-50 text-base md:text-lg py-3 px-6">
+        <Button
+          asChild
+          variant="default"
+          size="lg"
+          className="w-full md:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 text-base md:text-lg px-6 py-3 shadow-lg"
+        >
           <Link to="/upgrade-pro">Upgrade Now</Link>
         </Button>
       </div>
