@@ -1,5 +1,6 @@
 import { AITransform } from '@/components/AITransform';
 import { AuthDialog } from '@/components/AuthDialog';
+import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import React from 'react';
@@ -34,6 +35,7 @@ const AIGeneration: React.FC = () => {
         <AITransform />
       </section>
       <AuthDialog open={open} onOpenChange={setOpen} />
+      <UpgradeBanner />
     </div>
   );
 };

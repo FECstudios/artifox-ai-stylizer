@@ -16,9 +16,10 @@ import { Mail, Eye, EyeOff } from "lucide-react";
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  redirectTo?: string;
 }
 
-export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
+export const AuthDialog = ({ open, onOpenChange, redirectTo = "/ai-generation" }: AuthDialogProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +37,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/ai-generation`,
+            emailRedirectTo: `${window.location.origin}${redirectTo}`,
           },
         });
         
@@ -77,7 +78,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/ai-generation`,
+          redirectTo: `${window.location.origin}${redirectTo}`,
         },
       });
       

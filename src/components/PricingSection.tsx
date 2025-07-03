@@ -1,8 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 import { Check, Star, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AuthDialog } from "./AuthDialog";
+import { useState } from "react";
 
 export const PricingSection = () => {
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authRedirectTo, setAuthRedirectTo] = useState("/ai-generation");
+  const { openAuthDialog } = useAuth();
+  const navigate = useNavigate();
   return (
     <section className="py-24 relative">
       <div className="container mx-auto px-4">
@@ -47,7 +55,15 @@ export const PricingSection = () => {
                 </div>
               </div>
 
-              <Button variant="creative" className="w-full group" size="lg">
+              <Button
+                variant="creative"
+                className="w-full group"
+                size="lg"
+                onClick={() => {
+                  setAuthRedirectTo("/ai-generation");
+                  setAuthDialogOpen(true);
+                }}
+              >
                 <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Start Free
               </Button>
@@ -95,7 +111,15 @@ export const PricingSection = () => {
                 </div>
               </div>
 
-              <Button variant="hero" className="w-full group" size="lg">
+              <Button
+                variant="hero"
+                className="w-full group"
+                size="lg"
+                onClick={() => {
+                  setAuthRedirectTo("/upgrade-pro");
+                  setAuthDialogOpen(true);
+                }}
+              >
                 <Star className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Upgrade to Pro
               </Button>
@@ -111,6 +135,11 @@ export const PricingSection = () => {
           </p>
         </div>
       </div>
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+        redirectTo={authRedirectTo}
+      />
     </section>
   );
 };
