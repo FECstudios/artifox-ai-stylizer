@@ -18,7 +18,7 @@ const AIGeneration: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-0 md:px-4 max-w-screen-lg py-8 overflow-x-hidden">
+    <div className="container mx-auto px-0 md:px-4 max-w-screen-lg py-8 overflow-x-hidden" style={{overflowX: 'hidden'}}>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-4xl font-bold">AI Generation Page</h1>
         {session && (
