@@ -9,7 +9,6 @@ import { useState } from "react";
 export const PricingSection = () => {
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authRedirectTo, setAuthRedirectTo] = useState("/ai-generation");
-  const { openAuthDialog } = useAuth();
   const navigate = useNavigate();
   return (
     <section className="py-24 relative">
