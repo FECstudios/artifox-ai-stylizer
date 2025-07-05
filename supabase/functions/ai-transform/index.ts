@@ -69,20 +69,26 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Connect to Gradio client
-    const app = await client("black-forest-labs/FLUX.1-Kontext-Dev");
+    // Connect to Gradio client with proper error handling
+    let app;
+    try {
+      app = await client("black-forest-labs/FLUX.1-Kontext-Dev", {
+        hf_token: Deno.env.get('HF_TOKEN') || undefined
+      });
+    } catch (error) {
+      console.error('Failed to connect to Gradio:', error);
+      throw new Error('Failed to connect to AI service');
+    }
     
     // Call AI transform using Gradio
-    const result = await app.predict(
-      "/infer", {
-        input_image: input_image,
-        prompt: prompt,
-        seed: 0,
-        randomize_seed: true,
-        guidance_scale: 2.5,
-        steps: 28,
-      }
-    );
+    const result = await app.predict(0, [
+      input_image,
+      prompt,
+      0, // seed
+      true, // randomize_seed
+      2.5, // guidance_scale
+      28, // steps
+    ]);
 
     console.log('Transformation completed');
 
