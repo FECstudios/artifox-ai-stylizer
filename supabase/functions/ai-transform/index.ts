@@ -78,50 +78,50 @@ serve(async (req) => {
     // Connect to Gradio client
     const client = await Client.connect("OmniGen2/OmniGen2");
     
-    // Call AI transform with different settings based on user status
+    // Call AI transform with optimized settings to avoid GPU timeout
     let result;
     if (profile.user_status === 'free') {
-      // Free users get basic settings
-      console.log('Using basic settings for free user');
+      // Free users get fast, lightweight settings
+      console.log('Using fast settings for free user');
       result = await client.predict("/run", { 		
         instruction: prompt,
         width_input: 512, 		
         height_input: 512, 		
         scheduler: "euler", 		
-        num_inference_steps: 20, 
+        num_inference_steps: 10, // Reduced from 20 for speed
         image_input_1: imageBlob, 
-        image_input_2: null, // Only use one image for transformation
+        image_input_2: null,
         image_input_3: null, 		
-        negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar", 		
-        guidance_scale_input: 3, 		
-        img_guidance_scale_input: 1.5, 		
+        negative_prompt: "blurry, low quality", // Simplified negative prompt
+        guidance_scale_input: 2, // Reduced for speed		
+        img_guidance_scale_input: 1, // Reduced for speed		
         cfg_range_start: 0, 		
-        cfg_range_end: 1, 		
+        cfg_range_end: 0.5, // Reduced for speed		
         num_images_per_prompt: 1, 		
         max_input_image_side_length: 512, 		
         max_pixels: 262144, 		
         seed_input: -1, 
       });
     } else {
-      // Paid users get premium settings
-      console.log('Using premium settings for paid user');
+      // Paid users get better quality but still optimized for speed
+      console.log('Using balanced settings for paid user');
       result = await client.predict("/run", { 		
         instruction: prompt,
-        width_input: 1024, 		
-        height_input: 1024, 		
+        width_input: 768, // Slightly larger but not too big		
+        height_input: 768, 		
         scheduler: "euler", 		
-        num_inference_steps: 50, 
+        num_inference_steps: 20, // Moderate steps
         image_input_1: imageBlob, 
-        image_input_2: null, // Only use one image for transformation
+        image_input_2: null,
         image_input_3: null, 		
-        negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar", 		
-        guidance_scale_input: 5, 		
-        img_guidance_scale_input: 2, 		
+        negative_prompt: "blurry, low quality, distorted", 		
+        guidance_scale_input: 3, 		
+        img_guidance_scale_input: 1.5, 		
         cfg_range_start: 0, 		
-        cfg_range_end: 1, 		
+        cfg_range_end: 0.8, 		
         num_images_per_prompt: 1, 		
-        max_input_image_side_length: 2048, 		
-        max_pixels: 1048576, 		
+        max_input_image_side_length: 768, 		
+        max_pixels: 589824, // 768*768		
         seed_input: -1, 
       });
     }
