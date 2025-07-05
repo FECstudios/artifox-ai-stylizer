@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { Client } from "https://esm.sh/@gradio/client@latest";
+import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +12,8 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
-// No authentication needed for Gradio client
+// Initialize Hugging Face client
+const hf = new HfInference(Deno.env.get('HF_TOKEN'));
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -71,63 +72,55 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Convert image URL to blob
-    const imageResponse = await fetch(input_image);
-    const imageBlob = await imageResponse.blob();
+    // Create a combined prompt for image transformation
+    const transformPrompt = `${prompt}`;
 
-    // Connect to Gradio client
-    const client = await Client.connect("OmniGen2/OmniGen2");
-    
-    // Call AI transform with optimized settings to avoid GPU timeout
+    // Use Hugging Face Inference API for reliable image generation
     let result;
     if (profile.user_status === 'free') {
-      // Free users get fast, lightweight settings
-      console.log('Using fast settings for free user');
-      result = await client.predict("/run", { 		
-        instruction: prompt,
-        width_input: 512, 		
-        height_input: 512, 		
-        scheduler: "euler", 		
-        num_inference_steps: 10, // Reduced from 20 for speed
-        image_input_1: imageBlob, 
-        image_input_2: null,
-        image_input_3: null, 		
-        negative_prompt: "blurry, low quality", // Simplified negative prompt
-        guidance_scale_input: 2, // Reduced for speed		
-        img_guidance_scale_input: 1, // Reduced for speed		
-        cfg_range_start: 0, 		
-        cfg_range_end: 0.5, // Reduced for speed		
-        num_images_per_prompt: 1, 		
-        max_input_image_side_length: 512, 		
-        max_pixels: 262144, 		
-        seed_input: -1, 
+      // Free users get basic image-to-image transformation
+      console.log('Using basic image-to-image model for free user');
+      
+      // Fetch the input image
+      const imageResponse = await fetch(input_image);
+      const imageBlob = await imageResponse.blob();
+      
+      result = await hf.imageToImage({
+        inputs: imageBlob,
+        parameters: {
+          prompt: transformPrompt,
+          negative_prompt: "blurry, low quality",
+          num_inference_steps: 20,
+          strength: 0.7,
+          guidance_scale: 7
+        },
+        model: 'runwayml/stable-diffusion-v1-5'
       });
     } else {
-      // Paid users get better quality but still optimized for speed
-      console.log('Using balanced settings for paid user');
-      result = await client.predict("/run", { 		
-        instruction: prompt,
-        width_input: 768, // Slightly larger but not too big		
-        height_input: 768, 		
-        scheduler: "euler", 		
-        num_inference_steps: 20, // Moderate steps
-        image_input_1: imageBlob, 
-        image_input_2: null,
-        image_input_3: null, 		
-        negative_prompt: "blurry, low quality, distorted", 		
-        guidance_scale_input: 3, 		
-        img_guidance_scale_input: 1.5, 		
-        cfg_range_start: 0, 		
-        cfg_range_end: 0.8, 		
-        num_images_per_prompt: 1, 		
-        max_input_image_side_length: 768, 		
-        max_pixels: 589824, // 768*768		
-        seed_input: -1, 
+      // Paid users get better quality transformation
+      console.log('Using premium image-to-image model for paid user');
+      
+      // Fetch the input image
+      const imageResponse = await fetch(input_image);
+      const imageBlob = await imageResponse.blob();
+      
+      result = await hf.imageToImage({
+        inputs: imageBlob,
+        parameters: {
+          prompt: transformPrompt,
+          negative_prompt: "blurry, low quality, distorted",
+          num_inference_steps: 30,
+          strength: 0.8,
+          guidance_scale: 9
+        },
+        model: 'stabilityai/stable-diffusion-xl-base-1.0'
       });
     }
 
-    console.log('Raw result from OmniGen2:', result);
-    const output = result.data;
+    // Convert the blob to a base64 string for consistent response format
+    const arrayBuffer = await result.arrayBuffer();
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const output = `data:image/png;base64,${base64}`;
 
     console.log('Transformation completed');
 
