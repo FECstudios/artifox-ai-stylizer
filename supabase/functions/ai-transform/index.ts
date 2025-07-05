@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { Client } from "https://esm.sh/@gradio/client@0.10.1";
+import { client } from "https://esm.sh/@gradio/client@0.10.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -70,7 +70,7 @@ serve(async (req) => {
     console.log('User status:', profile.user_status);
 
     // Connect to Gradio client
-    const app = await Client.connect("black-forest-labs/FLUX.1-Kontext-Dev");
+    const app = await client("black-forest-labs/FLUX.1-Kontext-Dev");
     
     // Call AI transform using Gradio
     const result = await app.predict(
