@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import Replicate from "https://esm.sh/replicate@0.25.2";
+import { Client } from "https://esm.sh/@gradio/client@latest";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,9 +12,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
-const replicate = new Replicate({
-  auth: Deno.env.get('REPLICATE_API_TOKEN') ?? '',
-});
+// No authentication needed for Gradio client
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -58,7 +56,7 @@ serve(async (req) => {
       );
     }
 
-    const { prompt, input_image, output_format = 'jpg' } = await req.json();
+    const { prompt, input_image } = await req.json();
 
     if (!prompt || !input_image) {
       return new Response(
@@ -73,36 +71,62 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Call AI transform based on user status
-    let output;
+    // Convert image URL to blob
+    const imageResponse = await fetch(input_image);
+    const imageBlob = await imageResponse.blob();
+
+    // Connect to Gradio client
+    const client = await Client.connect("OmniGen2/OmniGen2");
+    
+    // Call AI transform with different settings based on user status
+    let result;
     if (profile.user_status === 'free') {
-      // Free users get flux-kontext-dev
-      console.log('Using flux-kontext-dev for free user');
-      output = await replicate.run(
-        "black-forest-labs/flux-kontext-dev",
-        {
-          input: {
-            prompt: prompt,
-            input_image: input_image,
-            output_format: output_format,
-            num_inference_steps: 30
-          }
-        }
-      );
+      // Free users get basic settings
+      console.log('Using basic settings for free user');
+      result = await client.predict("/run", { 		
+        instruction: prompt,
+        width_input: 512, 		
+        height_input: 512, 		
+        scheduler: "euler", 		
+        num_inference_steps: 20, 
+        image_input_1: imageBlob, 
+        image_input_2: imageBlob, 
+        image_input_3: imageBlob, 		
+        negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar", 		
+        guidance_scale_input: 3, 		
+        img_guidance_scale_input: 1.5, 		
+        cfg_range_start: 0, 		
+        cfg_range_end: 1, 		
+        num_images_per_prompt: 1, 		
+        max_input_image_side_length: 512, 		
+        max_pixels: 262144, 		
+        seed_input: -1, 
+      });
     } else {
-      // Paid users get flux-kontext-pro
-      console.log('Using flux-kontext-pro for paid user');
-      output = await replicate.run(
-        "black-forest-labs/flux-kontext-pro",
-        {
-          input: {
-            prompt: prompt,
-            input_image: input_image,
-            output_format: output_format
-          }
-        }
-      );
+      // Paid users get premium settings
+      console.log('Using premium settings for paid user');
+      result = await client.predict("/run", { 		
+        instruction: prompt,
+        width_input: 1024, 		
+        height_input: 1024, 		
+        scheduler: "euler", 		
+        num_inference_steps: 50, 
+        image_input_1: imageBlob, 
+        image_input_2: imageBlob, 
+        image_input_3: imageBlob, 		
+        negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar", 		
+        guidance_scale_input: 5, 		
+        img_guidance_scale_input: 2, 		
+        cfg_range_start: 0, 		
+        cfg_range_end: 1, 		
+        num_images_per_prompt: 1, 		
+        max_input_image_side_length: 2048, 		
+        max_pixels: 1048576, 		
+        seed_input: -1, 
+      });
     }
+
+    const output = result.data;
 
     console.log('Transformation completed');
 
@@ -118,7 +142,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        output,
+        output: [output], // Wrap in array to match expected frontend format
         credits_remaining: profile.credits - 1
       }),
       {
