@@ -90,8 +90,8 @@ serve(async (req) => {
         scheduler: "euler", 		
         num_inference_steps: 20, 
         image_input_1: imageBlob, 
-        image_input_2: imageBlob, 
-        image_input_3: imageBlob, 		
+        image_input_2: null, // Only use one image for transformation
+        image_input_3: null, 		
         negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar", 		
         guidance_scale_input: 3, 		
         img_guidance_scale_input: 1.5, 		
@@ -112,8 +112,8 @@ serve(async (req) => {
         scheduler: "euler", 		
         num_inference_steps: 50, 
         image_input_1: imageBlob, 
-        image_input_2: imageBlob, 
-        image_input_3: imageBlob, 		
+        image_input_2: null, // Only use one image for transformation
+        image_input_3: null, 		
         negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar", 		
         guidance_scale_input: 5, 		
         img_guidance_scale_input: 2, 		
@@ -126,6 +126,7 @@ serve(async (req) => {
       });
     }
 
+    console.log('Raw result from OmniGen2:', result);
     const output = result.data;
 
     console.log('Transformation completed');
