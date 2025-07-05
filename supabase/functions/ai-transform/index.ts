@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
+import { Client } from "https://esm.sh/@gradio/client@latest";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,8 +12,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
-// Initialize Hugging Face client
-const hf = new HfInference(Deno.env.get('HF_TOKEN'));
+// Initialize Gradio client - no auth needed
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -72,55 +71,64 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Create a combined prompt for image transformation
-    const transformPrompt = `${prompt}`;
-
-    // Use Hugging Face Inference API for reliable image generation
+    // Connect to Gradio client
+    const client = await Client.connect("OmniGen2/OmniGen2");
+    
+    // Upload the image file to Gradio first
+    console.log('Uploading image to Gradio...');
+    const imageResponse = await fetch(input_image);
+    const imageBlob = await imageResponse.blob();
+    
+    // Use the Gradio client predict method with proper parameters
     let result;
     if (profile.user_status === 'free') {
-      // Free users get basic image-to-image transformation
-      console.log('Using basic image-to-image model for free user');
-      
-      // Fetch the input image
-      const imageResponse = await fetch(input_image);
-      const imageBlob = await imageResponse.blob();
-      
-      result = await hf.imageToImage({
-        inputs: imageBlob,
-        parameters: {
-          prompt: transformPrompt,
-          negative_prompt: "blurry, low quality",
-          num_inference_steps: 20,
-          strength: 0.7,
-          guidance_scale: 7
-        },
-        model: 'runwayml/stable-diffusion-v1-5'
+      // Free users get basic settings (matching working Python example but optimized)
+      console.log('Using basic settings for free user');
+      result = await client.predict("/run", {
+        instruction: prompt,
+        width_input: 512,
+        height_input: 512,
+        scheduler: "euler",
+        num_inference_steps: 20, // Reduced for free users
+        image_input_1: imageBlob,
+        image_input_2: null,
+        image_input_3: null,
+        negative_prompt: "blurry, low quality",
+        guidance_scale_input: 3, // Reduced for speed
+        img_guidance_scale_input: 1.5,
+        cfg_range_start: 0,
+        cfg_range_end: 1,
+        num_images_per_prompt: 1,
+        max_input_image_side_length: 1024,
+        max_pixels: 524288, // 512*512*2
+        seed_input: 0,
       });
     } else {
-      // Paid users get better quality transformation
-      console.log('Using premium image-to-image model for paid user');
-      
-      // Fetch the input image
-      const imageResponse = await fetch(input_image);
-      const imageBlob = await imageResponse.blob();
-      
-      result = await hf.imageToImage({
-        inputs: imageBlob,
-        parameters: {
-          prompt: transformPrompt,
-          negative_prompt: "blurry, low quality, distorted",
-          num_inference_steps: 30,
-          strength: 0.8,
-          guidance_scale: 9
-        },
-        model: 'stabilityai/stable-diffusion-xl-base-1.0'
+      // Paid users get premium settings (closer to working Python example)
+      console.log('Using premium settings for paid user');
+      result = await client.predict("/run", {
+        instruction: prompt,
+        width_input: 1024,
+        height_input: 1024,
+        scheduler: "euler",
+        num_inference_steps: 50,
+        image_input_1: imageBlob,
+        image_input_2: null,
+        image_input_3: null,
+        negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar",
+        guidance_scale_input: 5,
+        img_guidance_scale_input: 2,
+        cfg_range_start: 0,
+        cfg_range_end: 1,
+        num_images_per_prompt: 1,
+        max_input_image_side_length: 2048,
+        max_pixels: 1048576,
+        seed_input: 0,
       });
     }
 
-    // Convert the blob to a base64 string for consistent response format
-    const arrayBuffer = await result.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-    const output = `data:image/png;base64,${base64}`;
+    console.log('Raw result from OmniGen2:', result);
+    const output = result.data;
 
     console.log('Transformation completed');
 
@@ -136,7 +144,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        output: [output], // Wrap in array to match expected frontend format
+        output: [output], // Return as array to match expected format
         credits_remaining: profile.credits - 1
       }),
       {
