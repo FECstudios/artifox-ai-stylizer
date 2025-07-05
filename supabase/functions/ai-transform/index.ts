@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import Replicate from "https://esm.sh/replicate@0.25.2";
+import { Client } from "https://esm.sh/@gradio/client@0.10.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,10 +11,6 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
-
-const replicate = new Replicate({
-  auth: Deno.env.get('REPLICATE_API_TOKEN') ?? '',
-});
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -73,36 +69,20 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Call AI transform based on user status
-    let output;
-    if (profile.user_status === 'free') {
-      // Free users get flux-kontext-dev
-      console.log('Using flux-kontext-dev for free user');
-      output = await replicate.run(
-        "black-forest-labs/flux-kontext-dev",
-        {
-          input: {
-            prompt: prompt,
-            input_image: input_image,
-            output_format: output_format,
-            num_inference_steps: 30
-          }
-        }
-      );
-    } else {
-      // Paid users get flux-kontext-pro
-      console.log('Using flux-kontext-pro for paid user');
-      output = await replicate.run(
-        "black-forest-labs/flux-kontext-pro",
-        {
-          input: {
-            prompt: prompt,
-            input_image: input_image,
-            output_format: output_format
-          }
-        }
-      );
-    }
+    // Connect to Gradio client
+    const app = await Client.connect("black-forest-labs/FLUX.1-Kontext-Dev");
+    
+    // Call AI transform using Gradio
+    const result = await app.predict(
+      "/infer", {
+        input_image: input_image,
+        prompt: prompt,
+        seed: 0,
+        randomize_seed: true,
+        guidance_scale: 2.5,
+        steps: 28,
+      }
+    );
 
     console.log('Transformation completed');
 
@@ -118,7 +98,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        output,
+        output: result,
         credits_remaining: profile.credits - 1
       }),
       {
