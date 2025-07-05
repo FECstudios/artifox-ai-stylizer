@@ -17,6 +17,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import UpgradePro from "./pages/UpgradePro";
 import { useEffect } from "react";
+import Clarity from "./pages/Clarity";
+import AIRestoration from "./pages/AIRestoration";
+import AIGenerationPage from "./pages/AIGenerationPage";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,9 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/ai-generation" element={<AIGeneration />} />
+      <Route path="/ai-generation/clarity" element={<Clarity />} />
+      <Route path="/ai-generation/restoration" element={<AIRestoration />} />
+      <Route path="/ai-generation/generation" element={<AIGenerationPage />} />
       <Route path="/contact" element={<ContactUs />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />

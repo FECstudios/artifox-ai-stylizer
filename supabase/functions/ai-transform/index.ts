@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { client } from "https://esm.sh/@gradio/client@0.10.1";
+import { Client } from "https://esm.sh/@gradio/client@0.10.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -69,26 +69,35 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Connect to Gradio client with proper error handling
+    // Connect to OmniGen2 Gradio client
     let app;
     try {
-      app = await client("black-forest-labs/FLUX.1-Kontext-Dev", {
-        hf_token: Deno.env.get('HF_TOKEN') || undefined
-      });
+      app = await Client.connect("OmniGen2/OmniGen2");
     } catch (error) {
-      console.error('Failed to connect to Gradio:', error);
+      console.error('Failed to connect to OmniGen2:', error);
       throw new Error('Failed to connect to AI service');
     }
     
-    // Call AI transform using Gradio
-    const result = await app.predict(0, [
-      input_image,
-      prompt,
-      0, // seed
-      true, // randomize_seed
-      2.5, // guidance_scale
-      28, // steps
-    ]);
+    // Call AI transform using OmniGen2
+    const result = await app.predict("/run", {
+      instruction: prompt,
+      width_input: 1024,
+      height_input: 1024,
+      scheduler: "euler",
+      num_inference_steps: 50,
+      image_input_1: input_image,
+      image_input_2: null,
+      image_input_3: null,
+      negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar",
+      guidance_scale_input: 5,
+      img_guidance_scale_input: 2,
+      cfg_range_start: 0,
+      cfg_range_end: 1,
+      num_images_per_prompt: 1,
+      max_input_image_side_length: 2048,
+      max_pixels: 1048576,
+      seed_input: 0,
+    });
 
     console.log('Transformation completed');
 
