@@ -20,6 +20,8 @@ import { useEffect } from "react";
 import Clarity from "./pages/Clarity";
 import AIRestoration from "./pages/AIRestoration";
 import AIGenerationPage from "./pages/AIGenerationPage";
+import AIEditorPage from "./pages/AIEditorPage";
+import PageWrapper from "./components/PageWrapper";
 
 const queryClient = new QueryClient();
 
@@ -35,15 +37,16 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/ai-generation" element={<AIGeneration />} />
-      <Route path="/ai-generation/clarity" element={<Clarity />} />
-      <Route path="/ai-generation/restoration" element={<AIRestoration />} />
-      <Route path="/ai-generation/generation" element={<AIGenerationPage />} />
-      <Route path="/contact" element={<ContactUs />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route path="/upgrade-pro" element={<UpgradePro />} />
+      <Route path="/" element={<PageWrapper><Index /></PageWrapper>} />
+      <Route path="/ai-generation" element={<PageWrapper><AIGeneration /></PageWrapper>} />
+      <Route path="/ai-generation/clarity" element={<PageWrapper><Clarity /></PageWrapper>} />
+      <Route path="/ai-generation/restoration" element={<PageWrapper><AIRestoration /></PageWrapper>} />
+      <Route path="/ai-generation/generation" element={<PageWrapper><AIGenerationPage /></PageWrapper>} />
+      <Route path="/ai-editor" element={<PageWrapper><AIEditorPage /></PageWrapper>} />
+      <Route path="/contact" element={<PageWrapper><ContactUs /></PageWrapper>} />
+      <Route path="/privacy" element={<PageWrapper><PrivacyPolicy /></PageWrapper>} />
+      <Route path="/terms" element={<PageWrapper><TermsOfService /></PageWrapper>} />
+      <Route path="/upgrade-pro" element={<PageWrapper><UpgradePro /></PageWrapper>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

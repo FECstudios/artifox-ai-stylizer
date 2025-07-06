@@ -41,6 +41,14 @@ const AIGeneration: React.FC = () => {
             </div>
           </div>
         </Link>
+        <Link to="/ai-editor" className="block group">
+          <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
+            <img src="/placeholder.svg" alt="AI Editor" className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <h2 className="text-white text-3xl font-bold">AI Editor</h2>
+            </div>
+          </div>
+        </Link>
         <Link to="/ai-generation/generation" className="block group">
           <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
             <img src="/placeholder.svg" alt="AI Generation" className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" />
