@@ -1,10 +1,16 @@
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 const AIGeneration: React.FC = () => {
-  const { session, signOut, profile } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
+  const [prompt, setPrompt] = useState('');
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const userCredits = profile?.credits ?? 0;
   const navigate = useNavigate();
 
@@ -13,42 +19,95 @@ const AIGeneration: React.FC = () => {
     navigate('/');
   };
 
+  const handleGenerateImage = async () => {
+    if (!prompt.trim() || !user) return;
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('replicate-generate', {
+        body: { prompt: prompt.trim() }
+      });
+
+      if (error) throw error;
+
+      if (data?.output && data.output.length > 0) {
+        setGeneratedImage(data.output[0]);
+        await refreshProfile();
+      }
+    } catch (error: any) {
+      console.error('Error generating image:', error);
+      alert('Failed to generate image: ' + (error.message || 'Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Choose your AI Tool</h1>
-        {session && (
+        <h1 className="text-4xl font-bold">AI Image Generation</h1>
+        {profile && (
           <div className="flex items-center space-x-4">
             <span className="text-lg">Credits: {userCredits}</span>
             <Button onClick={handleLogout}>Logout</Button>
           </div>
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Link to="/ai-generation/clarity" className="block group">
-          <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
-            <img src="/placeholder.svg" alt="Clarity AI" className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <h2 className="text-white text-3xl font-bold">Clarity</h2>
-            </div>
+      
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-center">Generate Images with AI</h2>
+          <p className="text-center text-muted-foreground">
+            Create stunning images from text prompts using FLUX Schnell
+          </p>
+          
+          <div className="space-y-4">
+            <Input
+              type="text"
+              placeholder="Describe the image you want to generate..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="w-full"
+            />
+            
+            <Button 
+              onClick={handleGenerateImage} 
+              disabled={!prompt.trim() || isLoading || userCredits === 0}
+              className="w-full"
+            >
+              {isLoading ? 'Generating...' : `Generate Image (-1 Credit)`}
+            </Button>
+            
+            {userCredits === 0 && (
+              <p className="text-center text-red-500">
+                You need credits to generate images. Please upgrade your account.
+              </p>
+            )}
           </div>
-        </Link>
-        <Link to="/ai-generation/restoration" className="block group">
-          <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
-            <img src="/placeholder.svg" alt="AI Restoration" className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <h2 className="text-white text-3xl font-bold">AI Restoration</h2>
-            </div>
+        </div>
+
+        {generatedImage && (
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold">Generated Image</h3>
+            <img 
+              src={generatedImage} 
+              alt="Generated" 
+              className="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+            />
+            <Button
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = generatedImage;
+                link.download = 'generated-image.webp';
+                link.click();
+              }}
+              variant="outline"
+            >
+              Download Image
+            </Button>
           </div>
-        </Link>
-        <Link to="/ai-generation/generation" className="block group">
-          <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
-            <img src="/placeholder.svg" alt="AI Generation" className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <h2 className="text-white text-3xl font-bold">AI Generation</h2>
-            </div>
-          </div>
-        </Link>
+        )}
       </div>
     </div>
   );
