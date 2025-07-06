@@ -23,30 +23,59 @@ const Clarity: React.FC = () => {
     }
   };
 
+  const uploadImage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from('uploads')
+      .upload(fileName, file);
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('uploads')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
   const handleGenerateImage = async () => {
     if (!uploadedImage || !user) return;
 
     setIsLoading(true);
 
-    // Deduct one credit
-    const newCredits = userCredits - 1;
-    if (newCredits < 0) {
-        alert("You don't have enough credits!");
-        setIsLoading(false);
-        return;
+    if (userCredits <= 0) {
+      alert("You don't have enough credits!");
+      setIsLoading(false);
+      return;
     }
 
-    await supabase
-      .from('profiles')
-      .update({ credits: newCredits })
-      .eq('user_id', user.id);
+    try {
+      // Convert data URL to blob and upload
+      const response = await fetch(uploadedImage);
+      const blob = await response.blob();
+      const file = new File([blob], 'clarity-input.jpg', { type: 'image/jpeg' });
+      const imageUrl = await uploadImage(file);
 
-    await refreshProfile();
+      const { data, error } = await supabase.functions.invoke('ai-transform', {
+        body: {
+          prompt: `enhance clarity and sharpness, improve image quality, clarity level: ${clarityValue}%`,
+          input_image: imageUrl,
+          output_format: 'jpg',
+        },
+      });
 
-    // Placeholder for image generation logic
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setGeneratedImage(uploadedImage);
-    setIsLoading(false);
+      if (error) throw error;
+
+      setGeneratedImage(data.output[0]);
+      await refreshProfile();
+    } catch (error) {
+      console.error('Clarity enhancement error:', error);
+      alert('Enhancement failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -17,8 +17,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import UpgradePro from "./pages/UpgradePro";
 import { useEffect } from "react";
-import Clarity from "./pages/Clarity";
-import AIRestoration from "./pages/AIRestoration";
 import AIGenerationPage from "./pages/AIGenerationPage";
 
 const queryClient = new QueryClient();
@@ -37,9 +35,18 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/ai-generation" element={<AIGeneration />} />
-      <Route path="/ai-generation/clarity" element={<Clarity />} />
-      <Route path="/ai-generation/restoration" element={<AIRestoration />} />
-      <Route path="/ai-generation/generation" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/image-generator" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/style-transfer" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/enhance-photo" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/remove-background" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/colorize" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/face-swap" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/upscale" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/anime-converter" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/sketch-to-art" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/age-progression" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/object-removal" element={<AIGenerationPage />} />
+      <Route path="/ai-generation/logo-generator" element={<AIGenerationPage />} />
       <Route path="/contact" element={<ContactUs />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
