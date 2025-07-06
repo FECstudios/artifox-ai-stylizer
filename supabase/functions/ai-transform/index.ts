@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { Client } from "https://esm.sh/@gradio/client@0.10.1";
+import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,6 +11,10 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
+
+const replicate = new Replicate({
+  auth: Deno.env.get('REPLICATE_API_TOKEN') ?? '',
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -69,35 +73,36 @@ serve(async (req) => {
     console.log('Transforming image with prompt:', prompt);
     console.log('User status:', profile.user_status);
 
-    // Connect to OmniGen2 Gradio client
-    let app;
-    try {
-      app = await Client.connect("OmniGen2/OmniGen2");
-    } catch (error) {
-      console.error('Failed to connect to OmniGen2:', error);
-      throw new Error('Failed to connect to AI service');
+    // Call AI transform based on user status
+    let output;
+    if (profile.user_status === 'free') {
+      // Free users get flux-kontext-dev
+      console.log('Using flux-kontext-dev for free user');
+      output = await replicate.run(
+        "black-forest-labs/flux-kontext-dev",
+        {
+          input: {
+            prompt: prompt,
+            input_image: input_image,
+            output_format: output_format,
+            num_inference_steps: 30
+          }
+        }
+      );
+    } else {
+      // Paid users get flux-kontext-pro
+      console.log('Using flux-kontext-pro for paid user');
+      output = await replicate.run(
+        "black-forest-labs/flux-kontext-pro",
+        {
+          input: {
+            prompt: prompt,
+            input_image: input_image,
+            output_format: output_format
+          }
+        }
+      );
     }
-    
-    // Call AI transform using OmniGen2
-    const result = await app.predict("/run", {
-      instruction: prompt,
-      width_input: 1024,
-      height_input: 1024,
-      scheduler: "euler",
-      num_inference_steps: 50,
-      image_input_1: input_image,
-      image_input_2: null,
-      image_input_3: null,
-      negative_prompt: "(((deformed))), blurry, over saturation, bad anatomy, disfigured, poorly drawn face, mutation, mutated, (extra_limb), (ugly), (poorly drawn hands), fused fingers, messy drawing, broken legs censor, censored, censor_bar",
-      guidance_scale_input: 5,
-      img_guidance_scale_input: 2,
-      cfg_range_start: 0,
-      cfg_range_end: 1,
-      num_images_per_prompt: 1,
-      max_input_image_side_length: 2048,
-      max_pixels: 1048576,
-      seed_input: 0,
-    });
 
     console.log('Transformation completed');
 
@@ -113,7 +118,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        output: result,
+        output,
         credits_remaining: profile.credits - 1
       }),
       {
