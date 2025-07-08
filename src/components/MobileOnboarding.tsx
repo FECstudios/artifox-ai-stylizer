@@ -68,17 +68,19 @@ export const MobileOnboarding: React.FC<MobileOnboardingProps> = ({ onComplete }
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-20">
-        <Card className="w-full max-w-sm border-0 shadow-none bg-transparent">
-          <CardContent className="text-center space-y-6 p-6">
-            <div className="flex justify-center">
-              {step.icon}
+      <div className="flex-1 flex flex-col items-center justify-center px-8 pb-20">
+        <Card className="w-full max-w-lg border-0 shadow-none bg-transparent">
+          <CardContent className="text-center space-y-8 p-8">
+            <div className="flex justify-center mb-6">
+              <div className="p-6 rounded-full bg-primary/10">
+                {step.icon}
+              </div>
             </div>
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-foreground">
+            <div className="space-y-6">
+              <h1 className="text-4xl font-bold text-foreground">
                 {step.title}
-              </h2>
-              <p className="text-muted-foreground text-base leading-relaxed">
+              </h1>
+              <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
                 {step.description}
               </p>
             </div>

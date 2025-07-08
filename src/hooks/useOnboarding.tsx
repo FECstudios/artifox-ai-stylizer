@@ -12,8 +12,8 @@ export const useOnboarding = () => {
 
   useEffect(() => {
     if (user && profile) {
-      // Check if user has completed onboarding
-      if (!profile.onboarding_completed) {
+      // Check if user has completed onboarding and email is confirmed
+      if (!profile.onboarding_completed && user.email_confirmed_at) {
         setShowOnboarding(true);
       }
     }
