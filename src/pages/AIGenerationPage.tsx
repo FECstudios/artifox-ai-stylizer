@@ -86,7 +86,7 @@ const AIGenerationPage: React.FC = () => {
           {imageUrl ? (
             <img src={imageUrl} alt="Generated Image" className="w-full h-auto rounded-lg shadow-lg" />
           ) : (
-            <p class="text-gray-500">Your generated image will appear here.</p>
+            <p className="text-gray-500">Your generated image will appear here.</p>
           )}
         </div>
       </div>

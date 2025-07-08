@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +10,13 @@ interface Profile {
   full_name?: string;
   avatar_url?: string;
   user_status: 'free' | 'paid';
-  paid_plan?: 'basic' | 'premium' | 'pro';
+  paid_plan?: 'basic' | 'premium' | 'pro' | 'trial';
   last_payment_date?: string;
   credits: number;
   created_at: string;
   updated_at: string;
+  onboarding_completed: boolean;
+  trial_ends_at?: string;
 }
 
 interface AuthContextType {

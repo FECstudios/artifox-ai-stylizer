@@ -23,7 +23,9 @@ export type Database = {
           full_name: string | null
           id: string
           last_payment_date: string | null
+          onboarding_completed: boolean
           paid_plan: string | null
+          trial_ends_at: string | null
           updated_at: string
           user_id: string
           user_status: string
@@ -36,7 +38,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           last_payment_date?: string | null
+          onboarding_completed?: boolean
           paid_plan?: string | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id: string
           user_status?: string
@@ -49,7 +53,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           last_payment_date?: string | null
+          onboarding_completed?: boolean
           paid_plan?: string | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
           user_status?: string
