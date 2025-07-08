@@ -28,25 +28,51 @@ const Clarity: React.FC = () => {
 
     setIsLoading(true);
 
-    // Deduct one credit
-    const newCredits = userCredits - 1;
-    if (newCredits < 0) {
+    try {
+      // Check credits
+      if (userCredits <= 0) {
         alert("You don't have enough credits!");
         setIsLoading(false);
         return;
+      }
+
+      // Upload image to Supabase storage first
+      const fileExt = 'jpg';
+      const fileName = `clarity-${Math.random()}.${fileExt}`;
+      
+      // Convert base64 to blob
+      const response = await fetch(uploadedImage);
+      const blob = await response.blob();
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('uploads')
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploads')
+        .getPublicUrl(fileName);
+
+      // Call AI enhancement function
+      const { data, error } = await supabase.functions.invoke('ai-transform', {
+        body: {
+          prompt: `Enhance the clarity and sharpness of this image, increase detail and resolution, make it crisp and clear. Clarity level: ${clarityValue}%`,
+          input_image: publicUrl,
+          output_format: 'jpg',
+        },
+      });
+
+      if (error) throw error;
+
+      setGeneratedImage(data.output[0]);
+      await refreshProfile();
+    } catch (error: any) {
+      console.error('Enhancement error:', error);
+      alert('Enhancement failed: ' + error.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    await supabase
-      .from('profiles')
-      .update({ credits: newCredits })
-      .eq('user_id', user.id);
-
-    await refreshProfile();
-
-    // Placeholder for image generation logic
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setGeneratedImage(uploadedImage);
-    setIsLoading(false);
   };
 
   return (
